@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Business.Abstract;
+using Business.Constants;
+using Core.Utilities.Business;
 using Core.Utilities.Helpers;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
@@ -23,7 +25,11 @@ namespace Business.Concrete
 
         public IResult Add(IFormFile file, CarImage carImage)
         {
-
+            IResult result = BusinessRules.Run(CheckImageLimitExceeded(carImage.CarId));
+            if (result!=null)
+            {
+                return result;
+            }
             carImage.ImagePath = FileHelper.Add(file);
             carImage.Date = DateTime.Now;
             _carImageDal.Add(carImage);
@@ -38,9 +44,14 @@ namespace Business.Concrete
         
         }
 
+        public IDataResult<List<CarImage>> GetAll()
+        {
+            return new SuccessDataResult<List<CarImage>>(_carImageDal.GetAll());
+        }
+
         public IDataResult<List<CarImage>> GetByCarId(int carId)
         {
-            throw new NotImplementedException();
+            return new SuccessDataResult<List<CarImage>>(_carImageDal.GetAll(c => c.CarId == carId));
         }
 
         public IDataResult<CarImage> GetById(int id)
@@ -53,6 +64,17 @@ namespace Business.Concrete
             carImage.ImagePath = FileHelper.Update(_carImageDal.Get(c =>c.Id == carImage.Id).ImagePath, file);
             carImage.Date = DateTime.Now;
             _carImageDal.Update(carImage);
+            return new SuccessResult();
+        }
+
+        private IResult CheckImageLimitExceeded(int carId)
+        {
+            var carImageCount = _carImageDal.GetAll(c => c.CarId == carId).Count;
+            if (carImageCount>=5)
+            {
+                return new ErrorResult(Messages.CarImageLimitExceed);
+            }
+
             return new SuccessResult();
         }
     }

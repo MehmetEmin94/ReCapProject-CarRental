@@ -15,7 +15,7 @@ namespace Core.Utilities.Helpers
         public static string Add(IFormFile file)
         {
             var newPath = CreateNewPath(file);
-            if (file.Length>0)
+            if (file?.Length>0)
             {
                 using (var stream = new FileStream(newPath, FileMode.Create))
                 {
@@ -64,8 +64,11 @@ namespace Core.Utilities.Helpers
 
         public static string CreateNewPath(IFormFile file)
         {
-            string pathDefault = Environment.CurrentDirectory + @"\wwwroot\null.jpg";
             
+            if (file==null)
+            {
+                return Environment.CurrentDirectory + @"\wwwroot\null.jpg";
+            }
                 FileInfo fileInfo = new FileInfo(file.FileName);
                 string fileExtension = fileInfo.Extension;
                 var newFileName = Guid.NewGuid().ToString() + fileExtension;
