@@ -99,14 +99,5 @@ namespace Business.Concrete
             return new SuccessResult(Messages.CarAdded);
         }
 
-        public IDataResult<List<CarDto>> GetCarDetails()
-        {
-            return new SuccessDataResult<List<CarDto>>(_carDal.GetCarDetails());
-        }
-
-        public IDataResult<List<CarDto>> GetByColorAndBrand(int brandId, int colorId)
-        {
-            return new SuccessDataResult<List<CarDto>>(_carDal.GetCarDetails(c => c.BrandId == brandId && c.ColorId == colorId));
-        }
     }
 }
